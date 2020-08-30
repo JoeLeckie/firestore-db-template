@@ -1,2 +1,2 @@
 # firestore-db-template
-Repo with sample to do list using firestorm for reference when creating firestorm projects
+Repo with sample to do list using firestore for reference when creating firestore projects
