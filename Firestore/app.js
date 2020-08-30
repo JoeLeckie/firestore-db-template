@@ -1,12 +1,13 @@
-const cafeList = document.querySelector('#cafe-list');
-const form = document.querySelector('#add-cafe-form')
+//Constants from index.html
+const TaskList = document.querySelector('#task-list'); //list of items
+const form = document.querySelector('#add-task-form') //Form
 
 //Display data (run for each document in firestore)
-function renderCafe(doc) {
+function renderTasks(doc) {
     //Create HTML tags to use 
     let li = document.createElement('li');
     let name = document.createElement('span');
-    let city = document.createElement('span');
+    let time = document.createElement('span');
 
     //Create x for deletion 
     let cross = document.createElement('div');
@@ -15,16 +16,16 @@ function renderCafe(doc) {
 
     //Fill text element of spans
     name.textContent = doc.data().name;
-    city.textContent = doc.data().city;
+    time.textContent = doc.data().time;
     cross.textContent = 'x';
 
     //Add new spans to new li
     li.appendChild(name);
-    li.appendChild(city);
+    li.appendChild(time);
     li.appendChild(cross);
 
     //Add new li to the cafe list (ul from index.html)
-    cafeList.appendChild(li);
+    TaskList.appendChild(li);
 
     //To delete data
     cross.addEventListener('click', (e) => {
@@ -32,7 +33,7 @@ function renderCafe(doc) {
         //Get document ID from element (used as a reference in firestore)
         let id = e.target.parentElement.getAttribute('data-id');
 
-        db.collection('cafes').doc(id).delete(); //Removes element from database
+        db.collection('tasks').doc(id).delete(); //Removes element from database
     })
 }
 
@@ -56,27 +57,27 @@ function renderCafe(doc) {
 form.addEventListener('submit', (e) => {
     e.preventDefault(); //Stops automatic refresh on button press
     //Add to firebase db using values from form
-    db.collection('cafes').add({
+    db.collection('tasks').add({
         name: form.name.value,
-        city: form.city.value
+        time: form.time.value
     })
     //Clear input boxes on form
     form.name.value = '';
-    form.city.value = '';
+    form.time.value = '';
 })
 
 //Listener (fore real-time updating)
-db.collection('cafes').onSnapshot(snapshot => {
+db.collection('tasks').onSnapshot(snapshot => {
     //Gets differences between firestore db and current data
     let changes = snapshot.docChanges();
     changes.forEach(change => { //For each change
-        console.log(change.doc.data());
         if (change.type == 'added') { //If new data, render it to display
-            renderCafe(change.doc);
+            renderTasks(change.doc);
         } else if (change.type == 'removed') { //If data has been deleted
             //Select the correct li using the document id from firestore db
-            let li = cafeList.querySelector('[data-id=' + change.doc.id + ']');
-            cafeList.removeChild(li); //Remove from list
+            console.log('[data-id=' + change.doc.id + ']');
+            let li = TaskList.querySelector('[data-id=' + change.doc.id + ']');
+            TaskList.removeChild(li); //Remove from list
         }
     })
 })
